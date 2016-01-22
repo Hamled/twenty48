@@ -93,6 +93,18 @@ var TWENTY48 = TWENTY48 || {
         // placing that tile vector back in this column
       },
 
+      updateBoard() {
+        // Determine from our input direction whether we are shifting
+        // horizontally or vertically
+        // Update all rows if we are shifting horizontally
+        // Update all columns if we are shifting vertically
+        // Generate a new tile and place it on the board
+      },
+
+      placeTile(row, column, tile) {
+        this.tiles[row * TWENTY48.CONSTS.BOARD_SIZE + column] = tile;
+      },
+
       generateNewTile(currentTile) {
         var tileContent;
 
@@ -105,18 +117,6 @@ var TWENTY48 = TWENTY48 || {
         }
 
         return new Tile(tileContent);
-      },
-
-      placeTile(row, column, tile) {
-        this.tiles[row * TWENTY48.CONSTS.BOARD_SIZE + column] = tile;
-      },
-
-      updateBoard() {
-        // Determine from our input direction whether we are shifting
-        // horizontally or vertically
-        // Update all rows if we are shifting horizontally
-        // Update all columns if we are shifting vertically
-        // Generate a new tile and place it on the board
       }
     };
   },
