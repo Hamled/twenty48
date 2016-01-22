@@ -60,7 +60,7 @@ var TWENTY48 = TWENTY48 || {
           if (tile1.content == tile2.content) {
             // TODO: Push animation event into queue for combination
             tileVector.removeAt(n);
-            tileVector[n] = generateNewTile(tile1);
+            tileVector[n] = newTile(tile1);
           }
         }
 
@@ -105,7 +105,7 @@ var TWENTY48 = TWENTY48 || {
         this.tiles[row * TWENTY48.CONSTS.BOARD_SIZE + column] = tile;
       },
 
-      generateNewTile(currentTile) {
+      newTile(currentTile) {
         var tileContent;
 
         if (currentTile === undefined || currentTile.empty) {
