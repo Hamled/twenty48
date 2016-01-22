@@ -20,17 +20,17 @@ var TWENTY48 = TWENTY48 || {
 
   Board: function() {
     return {
-      tiles: [],
+      tiles: [], // ROW MAJOR
 
       init() {
-        for (var row=0; row < TWENTY48.CONSTS.BOARD_SIZE; ++row) {
-          for (var col=0; col < TWENTY48.CONSTS.BOARD_SIZE; ++col) {
+        for (var row = 0; row < TWENTY48.CONSTS.BOARD_SIZE; row++) {
+          for (var col = 0; col < TWENTY48.CONSTS.BOARD_SIZE; col++) {
             this.placeTile(row, col, TWENTY48.CONSTS.EMPTY_TILE);
           }
         }
 
         // Place a few random tiles
-        for (var n=0; n < TWENTY48.CONSTS.STARTING_TILES; ++n) {
+        for (var n = 0; n < TWENTY48.CONSTS.STARTING_TILES; n++) {
           var randRow = Math.floor(Math.random() * TWENTY48.CONSTS.BOARD_SIZE);
           var randCol = Math.floor(Math.random() * TWENTY48.CONSTS.BOARD_SIZE);
           this.placeTile(randRow, randCol, TWENTY48.CONSTS.EMPTY_TILE);
@@ -46,14 +46,14 @@ var TWENTY48 = TWENTY48 || {
         // to the dimension of the board
 
         // Loop through the tile vector and remove all empty tiles
-        for (var n = tileVector.length - 1; n >= 0; --n) {
+        for (var n = tileVector.length - 1; n >= 0; n--) {
           if (tileVector[n].empty) {
             tileVector.removeAt(n);
           }
         }
 
         // Loop through the tile vector and combine all duplicates
-        for (n = 0; n < tileVector.length - 1; ++n) {
+        for (n = 0; n < tileVector.length - 1; n++) {
           var tile1 = tileVector[n];
           var tile2 = tileVector[n + 1];
 
