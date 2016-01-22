@@ -177,7 +177,7 @@ var TWENTY48 = TWENTY48 || {
         return new TWENTY48.Tile(tileContent);
       },
 
-      printBoard() {
+      print() {
         var board = "";
         for (var row = 0; row < TWENTY48.CONSTS.BOARD_SIZE; row++) {
           for (var col = 0; col < TWENTY48.CONSTS.BOARD_SIZE; col++) {
