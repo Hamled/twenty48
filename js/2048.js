@@ -152,7 +152,24 @@ var TWENTY48 = TWENTY48 || {
             this.updateCol(direction, n);
           }
         }
-        // TODO: Generate a new tile and place it on the board
+
+        // Count all of the empty tiles
+        const totalTiles = TWENTY48.CONSTS.BOARD_SIZE * TWENTY48.CONSTS.BOARD_SIZE;
+        var emptyTiles = 0;
+        for (n = 0; n < totalTiles; n++) {
+          if (this.tiles[n].empty) {
+            emptyTiles++;
+          }
+        }
+
+        // Select a random empty tile and replace it with a new tile
+        var newTileLoc = Math.floor(Math.random() * emptyTiles);
+        for (n = 0; n < totalTiles; n++) {
+          if (this.tiles[n].empty && --newTileLoc < 0) {
+            this.tiles[n] = this.newTile(TWENTY48.CONSTS.EMPTY_TILE);
+            break;
+          }
+        }
       },
 
       getTile(row, column) {
