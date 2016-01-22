@@ -136,7 +136,7 @@ var TWENTY48 = TWENTY48 || {
         this.placeTileVector(col, false, tileVector);
       },
 
-      updateBoard(direction) {
+      update(direction) {
         // Determine from our input direction whether we are shifting
         // horizontally or vertically
         var n;
