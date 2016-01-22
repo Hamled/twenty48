@@ -15,6 +15,12 @@ var TWENTY48 = TWENTY48 || {
       256: 512,
       512: 1024,
       1024: 2048
+    },
+    DIR: {
+      LEFT: 0,
+      RIGHT: 1,
+      UP: 2,
+      DOWN: 3
     }
   },
 
@@ -104,24 +110,47 @@ var TWENTY48 = TWENTY48 || {
         }
       },
 
-      updateRow(row) {
+      updateRow(direction, row) {
         // Update the specified row by first building a tile vector from
         // it, then compressing that tile vector, and finally placing
         // that tile vector back in this row
+        var tileVector = buildTileVector(row, true);
+
+        var shouldReverse = (direction == TWENTY48.CONSTS.DIR.RIGHT);
+        tileVector = compressTileVector(tileVector, shouldReverse);
+
+        placeTileVector(row, true, tileVector);
       },
 
-      updateColumn(column) {
+      updateCol(direction, col) {
         // Update the specified column by first building a tile vector
         // from it, then compressing that tile vector, and finally
         // placing that tile vector back in this column
+        var tileVector = buildTileVector(col, false);
+
+        var shouldReverse = (direction == TWENTY48.CONSTS.DIR.DOWN);
+        tileVector = compressTileVector(tileVector, shouldReverse);
+
+        placeTileVector(col, false, tileVector);
       },
 
-      updateBoard() {
+      updateBoard(direction) {
         // Determine from our input direction whether we are shifting
         // horizontally or vertically
-        // Update all rows if we are shifting horizontally
-        // Update all columns if we are shifting vertically
-        // Generate a new tile and place it on the board
+        var n;
+        if (direction == TWENTY48.CONSTS.DIR.LEFT ||
+            direction == TWENTY48.CONSTS.DIR.RIGHT  ) {
+          // Update all rows if we are shifting horizontally
+          for (n = 0; n < TWENTY48.CONSTS.BOARD_SIZE; n++) {
+            updateRow(direction, n);
+          }
+        } else {
+          // Update all columns if we are shifting vertically
+          for (n = 0; n < TWENTY48.CONSTS.BOARD_SIZE; n++) {
+            updateCol(direction, n);
+          }
+        }
+        // TODO: Generate a new tile and place it on the board
       },
 
       getTile(row, column) {
