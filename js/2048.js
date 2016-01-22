@@ -41,7 +41,7 @@ var TWENTY48 = TWENTY48 || {
         for (var n = 0; n < TWENTY48.CONSTS.STARTING_TILES; n++) {
           var randRow = Math.floor(Math.random() * TWENTY48.CONSTS.BOARD_SIZE);
           var randCol = Math.floor(Math.random() * TWENTY48.CONSTS.BOARD_SIZE);
-          this.placeTile(randRow, randCol, TWENTY48.CONSTS.EMPTY_TILE);
+          this.placeTile(randRow, randCol, this.newTile(TWENTY48.CONSTS.EMPTY_TILE));
         }
       },
 
