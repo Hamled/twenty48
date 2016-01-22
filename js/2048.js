@@ -61,7 +61,7 @@ var TWENTY48 = TWENTY48 || {
         // Loop through the tile vector and remove all empty tiles
         for (var n = tileVector.length - 1; n >= 0; n--) {
           if (tileVector[n].empty) {
-            tileVector.removeAt(n);
+            tileVector.splice(n, 1);
           }
         }
 
@@ -72,7 +72,7 @@ var TWENTY48 = TWENTY48 || {
 
           if (tile1.content == tile2.content) {
             // TODO: Push animation event into queue for combination
-            tileVector.removeAt(n);
+            tileVector.splice(n, 1);
             tileVector[n] = this.newTile(tile1);
           }
         }
