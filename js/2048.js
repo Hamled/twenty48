@@ -79,7 +79,7 @@ var TWENTY48 = TWENTY48 || {
 
         // Pad the tile vector with empty tiles
         for (n = tileVector.length; n < TWENTY48.CONSTS.BOARD_SIZE; n++) {
-          tileVector[n] = TWENTY48.CONSTS.BOARD_SIZE;
+          tileVector[n] = TWENTY48.CONSTS.EMPTY_TILE;
         }
 
         if (shouldReverse) {
