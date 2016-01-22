@@ -2,7 +2,7 @@ var TWENTY48 = TWENTY48 || {
 
   CONSTS: {
     BOARD_SIZE: 4,
-    EMPTY_TILE: new Tile(undefined),
+    EMPTY_TILE: undefined,
     STARTING_TILES: 2,
     GENERATION_RULES: {
       2: 4,
@@ -29,6 +29,8 @@ var TWENTY48 = TWENTY48 || {
       tiles: [], // ROW MAJOR
 
       init() {
+        TWENTY48.CONSTS.EMPTY_TILE = new TWENTY48.Tile(undefined);
+
         for (var row = 0; row < TWENTY48.CONSTS.BOARD_SIZE; row++) {
           for (var col = 0; col < TWENTY48.CONSTS.BOARD_SIZE; col++) {
             this.placeTile(row, col, TWENTY48.CONSTS.EMPTY_TILE);
@@ -172,7 +174,7 @@ var TWENTY48 = TWENTY48 || {
           tileContent = TWENTY48.CONSTS.GENERATION_RULES[currentTile.content];
         }
 
-        return new Tile(tileContent);
+        return new TWENTY48.Tile(tileContent);
       }
     };
   },
