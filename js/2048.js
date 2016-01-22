@@ -29,10 +29,35 @@ var TWENTY48 = TWENTY48 || {
         // Logic to generate a new tile vector that has been compressed
         // The tile vector might be from a row or a column on the board
         // We assume compression always happens in the direction of
-        // increasing indexes
+        // decreasing indexes
         // The compressed tile vector is then padded with empty tiles up
         // to the dimension of the board
 
+        // Loop through the tile vector and remove all empty tiles
+        for (var n = tileVector.length - 1; n >= 0; --n) {
+          if (tileVector[n].empty) {
+            tileVector.removeAt(n);
+          }
+        }
+
+        // Loop through the tile vector and combine all duplicates
+        for (n = 0; n < tileVector.length - 1; ++n) {
+          var tile1 = tileVector[n];
+          var tile2 = tileVector[n + 1];
+
+          if (tile1.content == tile2.content) {
+            // TODO: Push animation event into queue for combination
+            tileVector.removeAt(n);
+            tileVector[n] = generateNewTile(tile1);
+          }
+        }
+
+        // Pad the tile vector with empty tiles
+        for (n = tileVector.length; n < TWENTY48.CONSTS.BOARD_SIZE; n++) {
+          tileVector[n] = TWENTY48.CONSTS.BOARD_SIZE;
+        }
+
+        return tileVector;
       },
 
       buildTileVector(index, isRow) {
@@ -56,7 +81,7 @@ var TWENTY48 = TWENTY48 || {
         // placing that tile vector back in this column
       },
 
-      generateNewTile() {
+      generateNewTile(currentTile) {
 
       },
 
