@@ -73,7 +73,7 @@ var TWENTY48 = TWENTY48 || {
           if (tile1.content == tile2.content) {
             // TODO: Push animation event into queue for combination
             tileVector.removeAt(n);
-            tileVector[n] = newTile(tile1);
+            tileVector[n] = this.newTile(tile1);
           }
         }
 
@@ -95,7 +95,7 @@ var TWENTY48 = TWENTY48 || {
         for (var n = 0; n < TWENTY48.CONSTS.BOARD_SIZE; n++) {
           var row = isRow ? index : n;
           var col = isRow ? n : index;
-          tileVector[n] = getTile(row, col);
+          tileVector[n] = this.getTile(row, col);
         }
 
         return tileVector;
@@ -108,7 +108,7 @@ var TWENTY48 = TWENTY48 || {
           var row = isRow ? index : n;
           var col = isRow ? n : index;
 
-          placeTile(row, col, tileVector[n]);
+          this.placeTile(row, col, tileVector[n]);
         }
       },
 
@@ -116,24 +116,24 @@ var TWENTY48 = TWENTY48 || {
         // Update the specified row by first building a tile vector from
         // it, then compressing that tile vector, and finally placing
         // that tile vector back in this row
-        var tileVector = buildTileVector(row, true);
+        var tileVector = this.buildTileVector(row, true);
 
         var shouldReverse = (direction == TWENTY48.CONSTS.DIR.RIGHT);
-        tileVector = compressTileVector(tileVector, shouldReverse);
+        tileVector = this.compressTileVector(tileVector, shouldReverse);
 
-        placeTileVector(row, true, tileVector);
+        this.placeTileVector(row, true, tileVector);
       },
 
       updateCol(direction, col) {
         // Update the specified column by first building a tile vector
         // from it, then compressing that tile vector, and finally
         // placing that tile vector back in this column
-        var tileVector = buildTileVector(col, false);
+        var tileVector = this.buildTileVector(col, false);
 
         var shouldReverse = (direction == TWENTY48.CONSTS.DIR.DOWN);
-        tileVector = compressTileVector(tileVector, shouldReverse);
+        tileVector = this.compressTileVector(tileVector, shouldReverse);
 
-        placeTileVector(col, false, tileVector);
+        this.placeTileVector(col, false, tileVector);
       },
 
       updateBoard(direction) {
@@ -144,12 +144,12 @@ var TWENTY48 = TWENTY48 || {
             direction == TWENTY48.CONSTS.DIR.RIGHT  ) {
           // Update all rows if we are shifting horizontally
           for (n = 0; n < TWENTY48.CONSTS.BOARD_SIZE; n++) {
-            updateRow(direction, n);
+            this.updateRow(direction, n);
           }
         } else {
           // Update all columns if we are shifting vertically
           for (n = 0; n < TWENTY48.CONSTS.BOARD_SIZE; n++) {
-            updateCol(direction, n);
+            this.updateCol(direction, n);
           }
         }
         // TODO: Generate a new tile and place it on the board
