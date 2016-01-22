@@ -87,6 +87,12 @@ var TWENTY48 = TWENTY48 || {
       placeTileVector(index, isRow, tileVector) {
         // Replace the specified board row or column with the given tile
         // vector
+        for (var n = 0; n < TWENTY48.CONSTS.BOARD_SIZE; n++) {
+          var row = isRow ? index : n;
+          var col = isRow ? n : index;
+
+          placeTile(row, col, tileVector[n]);
+        }
       },
 
       updateRow(row) {
