@@ -3,7 +3,19 @@ var TWENTY48 = TWENTY48 || {
   CONSTS: {
     BOARD_SIZE: 4,
     EMPTY_TILE: new Tile(undefined),
-    STARTING_TILES: 2
+    STARTING_TILES: 2,
+    GENERATION_RULES: {
+      2: 4,
+      4: 8,
+      8: 16,
+      16: 32,
+      32: 64,
+      64: 128,
+      128: 256,
+      256: 512,
+      512: 1024,
+      1024: 2048
+    }
   },
 
   Board: function() {
@@ -82,7 +94,17 @@ var TWENTY48 = TWENTY48 || {
       },
 
       generateNewTile(currentTile) {
+        var tileContent;
 
+        if (currentTile === undefined || currentTile.empty) {
+          // We're generating a completely new tile
+          // TODO: Randomly select which tile content to use
+          tileContent = 2;
+        } else {
+          tileContent = TWENTY48.CONSTS.GENERATION_RULES[currentTile.content];
+        }
+
+        return new Tile(tileContent);
       },
 
       placeTile(row, column, tile) {
