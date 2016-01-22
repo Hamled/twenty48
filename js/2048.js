@@ -74,6 +74,14 @@ var TWENTY48 = TWENTY48 || {
 
       buildTileVector(index, isRow) {
         // Build a tile vector from the specified board row or column
+        var tileVector = [];
+        for (var n = 0; n < TWENTY48.CONSTS.BOARD_SIZE; n++) {
+          var row = isRow ? index : n;
+          var col = isRow ? n : index;
+          tileVector[n] = getTile(row, col);
+        }
+
+        return tileVector;
       },
 
       placeTileVector(index, isRow, tileVector) {
@@ -99,6 +107,10 @@ var TWENTY48 = TWENTY48 || {
         // Update all rows if we are shifting horizontally
         // Update all columns if we are shifting vertically
         // Generate a new tile and place it on the board
+      },
+
+      getTile(row, column) {
+        return this.tiles[row * TWENTY48.CONSTS.BOARD_SIZE + column];
       },
 
       placeTile(row, column, tile) {
