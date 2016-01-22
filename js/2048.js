@@ -37,13 +37,18 @@ var TWENTY48 = TWENTY48 || {
         }
       },
 
-      compressTileVector(tileVector) {
+      compressTileVector(tileVector, shouldReverse) {
         // Logic to generate a new tile vector that has been compressed
         // The tile vector might be from a row or a column on the board
         // We assume compression always happens in the direction of
         // decreasing indexes
         // The compressed tile vector is then padded with empty tiles up
         // to the dimension of the board
+
+        // If necessary, reverse the vector before and after compressing
+        if (shouldReverse) {
+          tileVector.reverse();
+        }
 
         // Loop through the tile vector and remove all empty tiles
         for (var n = tileVector.length - 1; n >= 0; n--) {
@@ -67,6 +72,10 @@ var TWENTY48 = TWENTY48 || {
         // Pad the tile vector with empty tiles
         for (n = tileVector.length; n < TWENTY48.CONSTS.BOARD_SIZE; n++) {
           tileVector[n] = TWENTY48.CONSTS.BOARD_SIZE;
+        }
+
+        if (shouldReverse) {
+          tileVector.reverse();
         }
 
         return tileVector;
