@@ -29,6 +29,10 @@ var TWENTY48 = TWENTY48 || {
       tiles: [], // ROW MAJOR
 
       init() {
+        // HACK: I don't yet know how I can elegantly have this set in
+        // the CONSTS object directly. Currently it seems to fail
+        // because the Tile constructor is not yet referenceable
+        // through that identifier.
         TWENTY48.CONSTS.EMPTY_TILE = new TWENTY48.Tile(undefined);
 
         for (var row = 0; row < TWENTY48.CONSTS.BOARD_SIZE; row++) {
