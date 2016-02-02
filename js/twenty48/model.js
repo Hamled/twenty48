@@ -1,4 +1,4 @@
-var TWENTY48 = TWENTY48 || {
+var TWENTY48 = $.extend(TWENTY48, {
 
   CONSTS: {
     BOARD_SIZE: 4,
@@ -279,4 +279,4 @@ var TWENTY48 = TWENTY48 || {
       }
     };
   }
-};
+});
