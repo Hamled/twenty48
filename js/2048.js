@@ -2,9 +2,9 @@ var TWENTY48 = TWENTY48 || {
 
   CONSTS: {
     BOARD_SIZE: 4,
-    EMPTY_TILE: undefined,
     STARTING_TILES: 2,
     GENERATION_RULES: {
+      undefined: 2,
       2: 4,
       4: 8,
       8: 16,
@@ -28,197 +28,255 @@ var TWENTY48 = TWENTY48 || {
     return {
       tiles: [], // ROW MAJOR
 
-      init() {
-        // HACK: I don't yet know how I can elegantly have this set in
-        // the CONSTS object directly. Currently it seems to fail
-        // because the Tile constructor is not yet referenceable
-        // through that identifier.
-        TWENTY48.CONSTS.EMPTY_TILE = new TWENTY48.Tile(undefined);
-
-        for (var row = 0; row < TWENTY48.CONSTS.BOARD_SIZE; row++) {
-          for (var col = 0; col < TWENTY48.CONSTS.BOARD_SIZE; col++) {
-            this.setTile(row, col, TWENTY48.CONSTS.EMPTY_TILE);
-          }
-        }
+      init: function() {
+        this._eachTile(function(tile, loc) {
+          this._setTile(loc, new TWENTY48.Tile());
+        });
 
         // Place a few random tiles
         for (var n = 0; n < TWENTY48.CONSTS.STARTING_TILES; n++) {
           var randRow = Math.floor(Math.random() * TWENTY48.CONSTS.BOARD_SIZE);
           var randCol = Math.floor(Math.random() * TWENTY48.CONSTS.BOARD_SIZE);
-          var oldTile = this.getTile(randRow, randCol);
-          this.setTile(randRow, randCol, new TWENTY48.Tile(oldTile));
+          var randLoc = { row: randRow, col: randCol };
+
+          this._setTile(randLoc, this.getTile(randLoc).next());
         }
       },
 
-      // Compress a tile row or column by removing all empty tiles,
-      // combining (adjacent, equal) tiles, and padding with empty
-      // tiles to retain proper board size
-      compressTiles(tileIter) {
-        var curTile = tileIter.next().value;
-        var nextIter = new TWENTY48.TileIterator(tileIter);
-        var nextTile = nextIter.next().value;
+      // Compress a tile row or column by moving all non-empty tiles to
+      // the highest indexes and combining duplicate tiles into one tile
+      // of the next grade
+      compressTiles: function(firstTile) {
+        // The front tile is always ahead of the back tile
+        var backTile = firstTile;
+        var frontTile = backTile.next();
 
-        while (nextTile) {
-          switch(curTile.empty << 1 | nextTile.empty) {
-
-            // Next tile is empty, keep going
-            case 1:
-            case 3:
-              break;
-
-            // Only current tile is empty
-            case 2:
-              // Swap tiles
-              tileIter.setTile(nextTile);
-              nextIter.setTile(curTile);
-              curTile = nextTile;
-              break;
-
-            // Neither tile is empty
-            case 0:
-              // If the tiles are the same, combine
-              if (curTile.content == nextTile.content) {
-                tileIter.setTile(new TWENTY48.Tile(curTile));
-                nextIter.setTile(TWENTY48.CONSTS.EMPTY_TILE);
-              }
-
-              // We're done with the current tile
-              curTile = tileIter.next().value;
-              break;
+        while (frontTile) {
+          // We can't do anything if the front tile is empty
+          // so we advance past it
+          if (frontTile.empty()) {
+            frontTile = frontTile.next();
+            continue;
           }
 
-          nextTile = nextIter.next().value;
+          // If the back tile is empty, swap it for the front tile
+          // and advance the front tile
+          if (backTile.empty()) {
+            backTile.swap(frontTile);
+            frontTile = frontTile.next();
+            continue;
+          }
+
+          // If both tiles are the same, combine them
+          // and advance both tiles
+          if (backTile.content() === frontTile.content()) {
+            backTile.combine(frontTile);
+            backTile = backTile.next();
+            frontTile = frontTile.next();
+          } else {
+            // Otherwise we're done with the back tile
+            backTile = backTile.next();
+            // Next we should swap the front tile with the new back tile
+            // This may end up swapping a tile with itself which is fine
+            backTile.swap(frontTile);
+            // And finally, advance the front tile as well
+            frontTile = frontTile.next();
+          }
         }
       },
 
-      update(direction) {
+      update: function(direction) {
         // Determine from our input direction whether we are shifting
         // horizontally or vertically
-        var vert = (direction == TWENTY48.CONSTS.DIR.UP ||
-                    direction == TWENTY48.CONSTS.DIR.DOWN);
+        var vert = (direction === TWENTY48.CONSTS.DIR.UP ||
+                    direction === TWENTY48.CONSTS.DIR.DOWN);
+        // We need to iterate in reverse order if the movement direction
+        // is opposite to the natural axis directions of our board
+        var reverse = vert ?
+          (direction === TWENTY48.CONSTS.DIR.DOWN) :
+          (direction === TWENTY48.CONSTS.DIR.RIGHT);
 
         // Compress each row or column in the given direction
         for (var n = 0; n < TWENTY48.CONSTS.BOARD_SIZE; n++) {
-          this.compressTiles(new TWENTY48.TileIterator(this, vert ? {
-            col: n,
-            reverse: (direction == TWENTY48.CONSTS.DIR.DOWN)
-          } : {
-            row: n,
-            reverse: (direction == TWENTY48.CONSTS.DIR.RIGHT)
-          }));
+          var options = {
+            row: !vert && n,
+            col: vert && n,
+            reverse: reverse
+          };
+
+          this.compressTiles(new TWENTY48.TileIterator(this, options));
         }
 
-        // Count all of the empty tiles
-        var totalTiles = TWENTY48.CONSTS.BOARD_SIZE * TWENTY48.CONSTS.BOARD_SIZE;
-        var emptyTiles = 0;
-        for (n = 0; n < totalTiles; n++) {
-          if (this.tiles[n].empty) {
-            emptyTiles++;
-          }
-        }
-
-        // Select a random empty tile and replace it with a new tile
-        var newTileLoc = Math.floor(Math.random() * emptyTiles);
-        for (n = 0; n < totalTiles; n++) {
-          if (this.tiles[n].empty && --newTileLoc < 0) {
-            this.tiles[n] = new TWENTY48.Tile(this.tiles[n]);
-            break;
-          }
-        }
+        // Pick a random empty location and place a new tile there
+        this._placeNewTile();
       },
 
-      getTile(row, col) {
-        if (row === undefined || col === undefined) {
+      getTile: function(loc) {
+        var inArray = (this._locIndex(loc) < this.tiles.length);
+        if (!inArray || !this._locValid(loc)) {
           return;
         }
 
-        return this.tiles[row * TWENTY48.CONSTS.BOARD_SIZE + col];
+        return this.tiles[this._locIndex(loc)];
       },
 
-      setTile(row, col, tile) {
-        this.tiles[row * TWENTY48.CONSTS.BOARD_SIZE + col] = tile;
+      swapTiles: function(firstLoc, secondLoc) {
+        var first = this.getTile(firstLoc);
+        var second = this.getTile(secondLoc);
+
+        this._setTile(firstLoc, second);
+        this._setTile(secondLoc, first);
       },
 
-      print() {
+      combineTiles: function(firstLoc, secondLoc) {
+        var newTile = this.getTile(firstLoc).next();
+
+        this._setTile(firstLoc, newTile);
+        this._setTile(secondLoc, new TWENTY48.Tile());
+      },
+
+      print: function() {
         var board = "";
-        for (var row = 0; row < TWENTY48.CONSTS.BOARD_SIZE; row++) {
-          for (var col = 0; col < TWENTY48.CONSTS.BOARD_SIZE; col++) {
-            board += this.getTile(row, col).content || ".";
+        this._eachTile(function(tile, loc) {
+          board += tile.content || ".";
+          if (loc.col === TWENTY48.CONSTS.BOARD_SIZE - 1) {
+            board += "\n";
           }
-          board += "\n";
-        }
+        });
 
         console.log(board + "\n");
+      },
+
+      /*   PRIVATE FUNCTIONS   */
+      _setTile: function(loc, tile) {
+        if (!this._locValid(loc)) {
+          return;
+        }
+
+        this.tiles[this._locIndex(loc)] = tile;
+      },
+
+      _placeNewTile: function() {
+        // Count all of the empty tiles
+        var emptyTiles = 0;
+        this._eachTile(function(tile) {
+          if (tile.empty) {
+            emptyTiles++;
+          }
+        });
+
+        // Select a random empty tile and replace it with a new tile
+        var newTileLoc = Math.floor(Math.random() * emptyTiles);
+        var newTile = new TWENTY48.Tile(Math.random() < 0.4 ? 4 : 2);
+        var finished = false;
+
+        this._eachTile(function(tile, loc) {
+          if (!finished && tile.empty && --newTileLoc < 0) {
+            this._setTile(loc, newTile);
+            finished = true;
+          }
+        });
+      },
+
+      _locIndex: function(loc) {
+        var index = loc.row * TWENTY48.CONSTS.BOARD_SIZE + loc.col;
+        return index;
+      },
+
+      _locValid: function(loc) {
+        var inRange = function(i) {
+          return Number.isInteger(i) &&
+                 i >= 0 &&
+                 i < TWENTY48.CONSTS.BOARD_SIZE;
+        };
+
+        return inRange(loc.row) && inRange(loc.col);
+      },
+
+      // Call the given method for each tile on the board
+      _eachTile: function(func) {
+        for (var row = 0; row < TWENTY48.CONSTS.BOARD_SIZE; row++) {
+          for (var col = 0; col < TWENTY48.CONSTS.BOARD_SIZE; col++) {
+            var loc = { row: row, col: col };
+            func.call(this, this.getTile(loc), loc);
+          }
+        }
       }
     };
   },
 
-  Tile: function(tile) {
-    var content, empty = false;
-
-    if (tile === undefined) {
-      // undefined means the Empty Tile
-      empty = true;
-    } else if(tile.empty) {
-      // We're generating a completely new tile
-      // TODO: Randomly select which tile content to use
-      content = 2;
-    } else {
-      content = TWENTY48.CONSTS.GENERATION_RULES[tile.content];
-    }
-
+  Tile: function(content) {
     return {
-      empty: empty,
-      content: content
+      empty: content === undefined,
+      content: content,
+      next: function() {
+        return new TWENTY48.Tile(TWENTY48.CONSTS.GENERATION_RULES[content]);
+      }
     };
   },
 
-  // We must call next() on the iterator to receive the first value
   TileIterator: function(board, options) {
     var BOARD_SIZE = TWENTY48.CONSTS.BOARD_SIZE;
-    var iterStart;
 
-    // Copy constructor
-    if (board.options !== undefined) {
-      iterStart = board._iter;
-      options = board.options;
-      board = board.board;
-    }
-
-    if (options.row === undefined &&
-        options.col === undefined) {
+    if (!Number.isInteger(options.row) && !Number.isInteger(options.col)) {
       throw new RangeError("Either a row index or a column index is " +
                            "required to create a tile iterator.");
     }
 
+    var iter = options.reverse ? BOARD_SIZE - 1: 0;
+    if (options.hasOwnProperty("iter")) {
+      iter = options.iter;
+    }
+
     return {
-      board: board,
-      options: options,
-
       next: function() {
-        this._iter = this._nextIter();
-        return {
-          value: this.board.getTile(this._row(), this._col()),
-          done: this._nextIter() === undefined
-        };
+        var nextIter = this._nextIter();
+
+        if (Number.isInteger(nextIter)) {
+          return new TWENTY48.TileIterator(board, {
+            row: options.row,
+            col: options.col,
+            reverse: options.reverse,
+            iter: nextIter
+          });
+        }
       },
-      setTile: function(tile) {
-        this.board.setTile(this._row(), this._col(), tile);
+      swap: function(other) {
+        board.swapTiles(this._loc(), other._loc());
+      },
+      combine: function(other) {
+        board.combineTiles(this._loc(), other._loc());
+      },
+      content: function() {
+        return board.getTile(this._loc()).content;
+      },
+      empty: function() {
+        return board.getTile(this._loc()).empty;
       },
 
+      /*   PRIVATE FUNCTIONS   */
       _row: function() {
-        return this.options.row === undefined ? this._iter : this.options.row;
+        return Number.isInteger(options.row) ? options.row : this._iter;
       },
       _col: function() {
-        return this.options.col === undefined ? this._iter : this.options.col;
+        return Number.isInteger(options.col) ? options.col : this._iter;
+      },
+      _loc: function() {
+        return {
+          row: this._row(),
+          col: this._col()
+        };
       },
 
-      _iter: iterStart === undefined ? (options.reverse ? BOARD_SIZE : -1) : iterStart,
+      _iter: iter,
       _nextIter: function() {
-        if (this.options.reverse) {
-          return this._iter > 0 ? this._iter - 1 : undefined;
+        if (options.reverse && this._iter > 0) {
+          return this._iter - 1;
         }
-        return this._iter < BOARD_SIZE - 1 ? this._iter + 1 : undefined;
+
+        if (!options.reverse && this._iter < BOARD_SIZE - 1) {
+          return this._iter + 1;
+        }
       }
     };
   }
