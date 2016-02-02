@@ -92,9 +92,8 @@ var TWENTY48 = TWENTY48 || {
                     direction === TWENTY48.CONSTS.DIR.DOWN);
         // We need to iterate in reverse order if the movement direction
         // is opposite to the natural axis directions of our board
-        var reverse = vert ?
-          (direction === TWENTY48.CONSTS.DIR.DOWN) :
-          (direction === TWENTY48.CONSTS.DIR.RIGHT);
+        var reverse = (direction === TWENTY48.CONSTS.DIR.DOWN ||
+                       direction === TWENTY48.CONSTS.DIR.RIGHT);
 
         // Compress each row or column in the given direction
         for (var n = 0; n < TWENTY48.CONSTS.BOARD_SIZE; n++) {
