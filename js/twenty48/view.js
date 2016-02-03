@@ -94,6 +94,19 @@ var TWENTY48 = $.extend(TWENTY48, {
         return this;
       },
 
+      placeNewTile: function(loc, value) {
+        var $newTile = $("<div>", {
+          "data-row": "r"+loc.row,
+          "data-col": "c"+loc.col,
+          "data-val": value
+        }).addClass("tile")
+          .text(value);
+
+        setTimeout(function() {
+          $("#gameboard").append($newTile);
+        }, TWENTY48.CONSTS.NEW_TILE_DELAY);
+      },
+
       _tileAnimTime: function() {
         return Number.parseFloat($(".tile").css("transition-duration")) * 1000;
       },

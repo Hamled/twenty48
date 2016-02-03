@@ -114,6 +114,32 @@ var TWENTY48 = $.extend(TWENTY48, {
         this._setTile(secondLoc, new TWENTY48.Tile());
       },
 
+      placeNewTile: function() {
+        // Count all of the empty tiles
+        var emptyTiles = 0;
+        this._eachTile(function(tile) {
+          if (tile.empty) {
+            emptyTiles++;
+          }
+        });
+
+        // Select a random empty tile and replace it with a new tile
+        var newTileCounter = Math.floor(Math.random() * emptyTiles);
+        var newTile = new TWENTY48.Tile(Math.random() < 0.4 ? 4 : 2);
+        var newTileLoc = {};
+        var finished = false;
+
+        this._eachTile(function(tile, loc) {
+          if (!finished && tile.empty && --newTileCounter < 0) {
+            this._setTile(loc, newTile);
+            newTileLoc = loc;
+            finished = true;
+          }
+        });
+
+        return newTileLoc;
+      },
+
       print: function() {
         var board = "";
         this._eachTile(function(tile, loc) {
@@ -133,28 +159,6 @@ var TWENTY48 = $.extend(TWENTY48, {
         }
 
         this.tiles[this._locIndex(loc)] = tile;
-      },
-
-      _placeNewTile: function() {
-        // Count all of the empty tiles
-        var emptyTiles = 0;
-        this._eachTile(function(tile) {
-          if (tile.empty) {
-            emptyTiles++;
-          }
-        });
-
-        // Select a random empty tile and replace it with a new tile
-        var newTileLoc = Math.floor(Math.random() * emptyTiles);
-        var newTile = new TWENTY48.Tile(Math.random() < 0.4 ? 4 : 2);
-        var finished = false;
-
-        this._eachTile(function(tile, loc) {
-          if (!finished && tile.empty && --newTileLoc < 0) {
-            this._setTile(loc, newTile);
-            finished = true;
-          }
-        });
       },
 
       _locIndex: function(loc) {

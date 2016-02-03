@@ -27,15 +27,17 @@ var TWENTY48 = $.extend(TWENTY48, {
             // and place a new tile
             if (events.length > 0) {
               game.display.update(events);
-              game.board._placeNewTile();
+              game._placeNewTile();
             }
           }
         });
       },
 
-      handleInput: function(direction) {
-        // Update the board based on our input
-        this.board.update(direction);
+      _placeNewTile: function() {
+        var loc = this.board.placeNewTile();
+        var value = this.board.getTile(loc).content;
+
+        this.display.placeNewTile(loc, value);
       }
     };
   }
