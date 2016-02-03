@@ -18,7 +18,14 @@ var TWENTY48 = $.extend(TWENTY48, {
         $('body').keyup(function(event) {
           var direction = game.keyboardMap[event.which];
           if (direction !== undefined) {
-            game.handleInput(direction);
+            // Update the board based on our input
+            var events = game.board.update(direction);
+
+            // If we actually moved tiles, update the display
+            // and place a new tile
+            if (events.length > 0) {
+              game.board._placeNewTile();
+            }
           }
         });
       },

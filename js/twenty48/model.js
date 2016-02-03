@@ -70,19 +70,24 @@ var TWENTY48 = $.extend(TWENTY48, {
         var reverse = (direction === TWENTY48.CONSTS.DIR.DOWN ||
                        direction === TWENTY48.CONSTS.DIR.RIGHT);
 
+        // Build a log of all board change events, used when rendering
+        // the display, and determining if we actually moved
+        var events = [];
+
         // Compress each row or column in the given direction
         for (var n = 0; n < TWENTY48.CONSTS.BOARD_SIZE; n++) {
           var options = {
             row: !vert && n,
             col: vert && n,
-            reverse: reverse
+            reverse: reverse,
+            events: events
           };
 
           this.compressTiles(new TWENTY48.TileIterator(this, options));
         }
 
-        // Pick a random empty location and place a new tile there
-        this._placeNewTile();
+        // Give back any change events for the controller to handle
+        return events;
       },
 
       getTile: function(loc) {
@@ -211,15 +216,39 @@ var TWENTY48 = $.extend(TWENTY48, {
             row: options.row,
             col: options.col,
             reverse: options.reverse,
+            events: options.events,
             iter: nextIter
           });
         }
       },
       swap: function(other) {
-        board.swapTiles(this._loc(), other._loc());
+        var thisLoc = this._loc(),
+            otherLoc = other._loc();
+        var sameLoc = (thisLoc.row === otherLoc.row &&
+                       thisLoc.col === otherLoc.col);
+
+        board.swapTiles(thisLoc, otherLoc);
+        if (options.events && !sameLoc) {
+          options.events.push({
+            type: TWENTY48.CONSTS.EVENT_TYPES.MOVE,
+            source: otherLoc,
+            destination: thisLoc
+          });
+        }
       },
       combine: function(other) {
-        board.combineTiles(this._loc(), other._loc());
+        var thisLoc = this._loc(),
+            otherLoc = other._loc();
+        board.combineTiles(thisLoc, otherLoc);
+
+        if (options.events) {
+          options.events.push({
+            type: TWENTY48.CONSTS.EVENT_TYPES.COMBINE,
+            source: otherLoc,
+            destination: thisLoc,
+            newValue: this.content()
+          });
+        }
       },
       content: function() {
         return board.getTile(this._loc()).content;
@@ -251,7 +280,9 @@ var TWENTY48 = $.extend(TWENTY48, {
         if (!options.reverse && this._iter < BOARD_SIZE - 1) {
           return this._iter + 1;
         }
-      }
+      },
+
+      _events: options.events
     };
   }
 });
