@@ -14,6 +14,8 @@ var TWENTY48 = $.extend(TWENTY48, {
         game.board = new TWENTY48.Board();
         game.board.init();
 
+        game.display = new TWENTY48.Display();
+
         // Configure the controller
         $('body').keyup(function(event) {
           var direction = game.keyboardMap[event.which];
@@ -24,6 +26,7 @@ var TWENTY48 = $.extend(TWENTY48, {
             // If we actually moved tiles, update the display
             // and place a new tile
             if (events.length > 0) {
+              game.display.update(events);
               game.board._placeNewTile();
             }
           }

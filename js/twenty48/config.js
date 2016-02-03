@@ -2,6 +2,7 @@ var TWENTY48 = $.extend(TWENTY48, {
   CONSTS: {
     BOARD_SIZE: 4,
     STARTING_TILES: 2,
+    NEW_TILE_DELAY: 350, // milliseconds
     GENERATION_RULES: {
       undefined: 2,
       2: 4,
