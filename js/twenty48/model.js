@@ -7,15 +7,6 @@ var TWENTY48 = $.extend(TWENTY48, {
         this._eachTile(function(tile, loc) {
           this._setTile(loc, new TWENTY48.Tile());
         });
-
-        // Place a few random tiles
-        for (var n = 0; n < TWENTY48.CONSTS.STARTING_TILES; n++) {
-          var randRow = Math.floor(Math.random() * TWENTY48.CONSTS.BOARD_SIZE);
-          var randCol = Math.floor(Math.random() * TWENTY48.CONSTS.BOARD_SIZE);
-          var randLoc = { row: randRow, col: randCol };
-
-          this._setTile(randLoc, this.getTile(randLoc).next());
-        }
       },
 
       // Compress a tile row or column by moving all non-empty tiles to

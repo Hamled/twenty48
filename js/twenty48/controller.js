@@ -16,6 +16,11 @@ var TWENTY48 = $.extend(TWENTY48, {
 
         game.display = new TWENTY48.Display();
 
+        // Place a few random tiles
+        for (var n = 0; n < TWENTY48.CONSTS.STARTING_TILES; n++) {
+          game._placeNewTile();
+        }
+
         // Configure the controller
         $('body').keyup(function(event) {
           var direction = game.keyboardMap[event.which];
